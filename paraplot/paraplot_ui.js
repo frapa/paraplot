@@ -10,6 +10,8 @@ var drag = false;
 var pos_x = 0;
 var pos_y = 0;
 
+var sliders = new Object();
+
 // i don't know why this is there but make thinks
 // work on firefox!!!
 var event;
@@ -55,6 +57,7 @@ function box_mod(id) {
         view.scale.y = view.pix.h / view.rect.h;
         
         redraw();
+        draw_grid();
     }
 }
 
@@ -72,10 +75,6 @@ function box_write() {
 
 function init_ui() {
     box_write();
-    
-    //document.onmousewheel = wheel;
-    //document.onmousemove = plot_mouse_move;
-    //document.onmouseup = plot_mouse_up;
     
     svg.addEventListener('mousedown', plot_mouse_down);
     document.addEventListener('mousemove', plot_mouse_move);
@@ -177,6 +176,19 @@ function plot_mouse_up () {
     drag = false;
 }
 
+// change position of slider after input box has changed
+function editParameter(para_id, event) {
+    var value = document.getElementById("para_input_" + para_id).value;
+
+    if (value != "") {
+        parameters[para_id] = Parser.evaluate(value, parameters);
+        sliders[para_id].setValue(value, false);
+    
+        redraw();
+    }
+}
+
+// change the value of the input box after slider has been moved
 function changeParameter(para_id, value) {
     parameters[para_id] = value;
 
@@ -200,6 +212,7 @@ function addParameterSlider(p) {
     val.type = "number";
     val.value = 1;
     val.id = "para_input_" + p;
+    val.addEventListener("input", function (e) {editParameter(p, e)});
     para_div.appendChild(val);
     
     new_func_div.appendChild(para_div);
@@ -212,6 +225,8 @@ function addParameterSlider(p) {
     slider = new Slider("slider_" + p, -10, 10, 0.1);
     slider.onChange = function (value) {changeParameter(p, value);};
 	slider.setValue(1);
+
+    sliders[p] = slider;
 }
 
 init();
