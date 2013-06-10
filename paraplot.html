@@ -1,0 +1,74 @@
+<link rel="stylesheet" href="paraplot/paraplot.css" type="text/css">
+
+<script src="paraplot/slider.js" type="text/javascript"></script>
+<script src="paraplot/parser.min.js" type="text/javascript"></script>
+<script src="paraplot/paraplot.js" type="text/javascript"></script>
+<script src="paraplot/plot.js" type="text/javascript"></script>
+<script src="paraplot/grid.js" type="text/javascript"></script>
+
+<table class="tab_plot">
+    <tr>
+        <td>
+            <svg id="plot">
+                <g id="graph">
+                <path
+                   style="stroke: #000000; stroke-width: 1px;"
+                   id="xaxis" />
+                <path
+                   style="stroke: #000000; stroke-width: 1px;"
+                   id="yaxis" />
+                <!--<path
+                   style="stroke: #dd0000;"
+                   id="function0" />-->
+              </g>
+            </svg>
+        </td>
+        <td class="sidebar">
+            <!-- Remember to add menu to paraplot_ui.js file!! -->
+            <div class="menubar">
+                <div class="menu" id="function_menu"
+                    style="background: #fff; background-image: url('paraplot/img/function_menu.png');"
+                    onclick="menu_select('function')"></div>
+                <div class="menu" id="settings_menu"
+                    style="background-image: url('paraplot/img/settings_menu.png');"
+                    onclick="menu_select('settings')"> </div>
+                <div class="menu" id="tools_menu"
+                    style="background-image: url('paraplot/img/tools_menu.png');"
+                    onclick="menu_select('tools')"> </div>
+            </div>
+            
+            <div style="">
+                <div class="sidebar_content" id="function_content">
+                    <div id="funclist">
+                        <!--<div class="funcbox">
+                            <input type="text" class="func" id="input0" onkeyup="input('0')" />
+                            <table class="commands"><tr>
+                                <td></td>
+                                <td>
+                                    <button onclick="func_evaluate(0)" class="plot">Plot</button>
+                                </td>
+                            </tr></table>
+                        </div>-->
+                    </div>
+                    
+                    <button onclick="func_add()">+</button>
+                </div>
+                
+                <div class="sidebar_content" id="settings_content" style="display: none;">
+                    <div>
+                        Box<br />
+                        x: from <input value="" id="box_sx" style="width: 100px;" type="number" oninput="box_mod('sx')" />
+                        to <input value="" id="box_ex" style="width: 100px" type="number"  oninput="box_mod('ex')" /><br />
+                        y: from <input value="" id="box_sy" style="width: 100px;" type="number"  oninput="box_mod('sy')" />
+                        to <input value="" id="box_ey" style="width: 100px" type="number"  oninput="box_mod('ey')" />
+                     </div>
+                </div>
+                
+                <div class="sidebar_content" id="tools_content">
+                </div>
+            </div>
+        </td>
+    </tr>
+</table>
+
+<script src="paraplot/paraplot_ui.js" type="text/javascript"></script>
