@@ -1,5 +1,8 @@
 var sidebar_width = 320;
 
+// This objects tells the rectangle to be viewed
+// and the dimensions of the window in pixels.
+// Moreover it keeps track of the scale of the view.
 var view = {
     scale: {x:100, y:100},
     rect: {x: 0, y:0, w:0, h:0},
@@ -10,8 +13,9 @@ var step;
 var step_pix = 5;
 
 var functions = new Array();
+var function_count = 0;
 var parameters = {'pi': 3.141592, 'e': 2.718281};
-var colors = new Array();
+var forbidden_parameters = ['random', 'fac', 'min', 'max', 'pyt', 'pow', 'atan2'];
 
 var svg;
 var graph;
@@ -21,6 +25,9 @@ var yaxis;
 var grid_lines = {x: new Array(), y: new Array(), x_labels: new Array(), y_labels: new Array()};
 var pix_major_tick = 120;
 
+var temp = new Array();
+
+// Saves some dom elements and sets the view and the grid.
 function init () {
     svg = document.getElementById("plot");
     graph = document.getElementById("graph");
@@ -35,50 +42,19 @@ function init () {
     draw_grid();
 }
 
-function center_view() {
+// Centers view on x, y coordinates.
+// It uses the size of the window in pixels and the scale factor.
+function center_view(x, y) {
+    if (x === undefined) x = 0;
+    if (y === undefined) y = 0;
+
     // compute view
     view.rect.w = view.pix.w / view.scale.x;
     view.rect.h = view.pix.h / view.scale.y;
-    view.rect.x = -view.rect.w / 2;
-    view.rect.y = -view.rect.h / 2;
+    view.rect.x = x - view.rect.w / 2;
+    view.rect.y = y - view.rect.h / 2;
         
     step = step_pix / view.scale.x;
-}
-
-function HSV_to_RGB(H, S, V) {
-    H = H % 360;
-    var C = V * S;
-    var h = H / 60;
-    var X = C * (1 - Math.abs(h % 2 - 1));
-    var m = V - C;
-
-    if (!isFinite(h)) {
-        return [m, m, m];
-    } else if (h < 1) {
-        return [C + m, X + m, m];
-    } else if (h < 2) {
-        return [X + m, C + m, m];
-    } else if (h < 3) {
-        return [m, C + m, X + m];
-    } else if (h < 4) {
-        return [m, X + m, C + m];
-    } else if (h < 5) {
-        return [X + m, m, C + m];
-    } else if (h < 6) {
-        return [C + m, m, X + m];
-    }
-}
-
-function generate_color() {
-    var disct = 7;
-    var N = colors.length;
-    var V = 1 - Math.floor(N / disct) * 0.25;
-    var S = 1;
-    var H = 360 / disct * (N % disct) + (360 / disct) * 0.5 * Math.floor(N / disct);
-
-    var color = HSV_to_RGB(H, S, V);
-    colors.push(color);
-    return color;
 }
 
 function func_add () {
@@ -93,12 +69,14 @@ function func_add () {
 
     var input = document.createElement("input");
     input.setAttribute("type", "text");
-    input.setAttribute("id", "input" + functions.length);
+    input.setAttribute("id", "input" + function_count);
     input.setAttribute("class", "func");
     //input.addEventListener("input", function (e) {func_evaluate(e.target.id.replace("input", ""))});
-    input.addEventListener("keydown", function (e) {input_key_down(e.target.id.replace("input", ""), e)});
+    input.addEventListener("keydown", input_key_down);
     new_func_div.appendChild(input);
     input.focus();
+    // which input is selected
+    selected_input = function_count;
 
     // add command table (with the color and the "plot" button)
     var tab = document.createElement("table");
@@ -119,7 +97,7 @@ function func_add () {
     td_color.appendChild(color_div);
 
     var button = document.createElement("button");
-    button.setAttribute("onclick", "func_evaluate(" + functions.length + ")");
+    button.setAttribute("onclick", "func_evaluate(" + function_count + ")");
     button.innerHTML = "Plot";
     td_button.appendChild(button);
 
@@ -127,10 +105,11 @@ function func_add () {
 
     var path = document.createElementNS('http://www.w3.org/2000/svg', "path");
     graph.appendChild(path);
-    path.setAttribute("id", "function" + functions.length);
+    path.setAttribute("id", "function" + function_count);
     path.style.stroke = css_color;
 
-    functions.length += 1;
+    functions.push({id: function_count, style: {color: css_color}})
+    function_count++;
 }
 
 function redraw() {

@@ -42,7 +42,9 @@ function Slider(ele_id, min_val, max_val, step) {
         _this.drag = false;
     }
 
-    this.setValue = function (new_val, propagate=true) {
+    this.setValue = function (new_val, propagate) {
+        if (propagate === undefined) propagate = true;
+
         if (new_val < _this.min) {
             new_pos = _this.min;
         } else if (new_pos > _this.max) { 

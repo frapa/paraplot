@@ -1,10 +1,5 @@
-var menus = {'function_menu': document.getElementById('function_menu'),
-    'settings_menu': document.getElementById('settings_menu'),
-    'tools_menu': document.getElementById('tools_menu')};
-
-var contents = {'function_content': document.getElementById('function_content'),
-    'settings_content': document.getElementById('settings_content'),
-    'tools_content': document.getElementById('tools_content')};
+var menus;
+var contents;
     
 var drag = false;
 var pos_x = 0;
@@ -16,6 +11,8 @@ var sliders = new Object();
 // work on firefox!!!
 var event;
 
+// state vars
+var selected_input;
 
 function menu_select (id) {
     for (c in contents) {
@@ -87,29 +84,20 @@ function init_ui() {
         svg.addEventListener('mousewheel', wheel, true);
     }
 
+    menus = {
+        'function_menu': document.getElementById('function_menu'),
+        'settings_menu': document.getElementById('settings_menu'),
+        'tools_menu': document.getElementById('tools_menu')
+    };
+    
+    contents = {
+        'function_content': document.getElementById('function_content'),
+        'settings_content': document.getElementById('settings_content'),
+        'tools_content': document.getElementById('tools_content')
+    };
+
     menu_select('function');
     func_add();
-}
-
-function input_key_down(input_id, event) {
-    if (event.keyCode == 13) {
-        func_evaluate(input_id);
-    } else if (event.keyCode == 40) {
-        func_add();
-    }
-}
-
-function on_resize_window(event) {
-    view.pix.w = window.innerWidth - sidebar_width
-    view.pix.h = window.innerHeight;
-    
-    center_view();
-        
-    svg.style.width = view.pix.w;
-    svg.style.height = view.pix.h;
-    
-    redraw();
-    draw_grid();
 }
 
 function getMouseX(event) {
@@ -118,62 +106,6 @@ function getMouseX(event) {
 
 function getMouseY(event) {
     return view.rect.y + (view.rect.h - event.clientY / view.scale.y);
-}
-
-function wheel(event) {
-    if (!event) var event = window.event;
-    
-    var dY;
-    if (navigator.userAgent.indexOf('Firefox') != -1) {
-        dY = event.deltaY / 30;
-    } else {
-        dY = event.wheelDeltaY / 1200;
-    }
-
-    cx = view.rect.x + view.rect.w / 2;
-    cy = view.rect.y + view.rect.h / 2;
-
-    view.rect.w *= Math.exp(dY);
-    view.rect.h *= Math.exp(dY);
-    
-    view.rect.x = cx - view.rect.w / 2;
-    view.rect.y = cy - view.rect.h / 2;
-    
-    view.scale.x = view.pix.w / view.rect.w;
-    view.scale.y = view.pix.h / view.rect.h;
-    
-    redraw();
-    box_write();
-    draw_grid();
-}
-
-function plot_mouse_down (event) {
-    if (event.button === 0) {
-        // disable text select
-        event.preventDefault();
-
-        drag = true;
-    }
-}
-
-function plot_mouse_move (event) {
-    if (!event) var event = window.event;
-    
-    if (drag) {
-        view.rect.x += -(event.clientX - pos_x) / view.scale.x;
-        view.rect.y += (event.clientY - pos_y) / view.scale.y;
-        
-        redraw();
-        box_write();
-        draw_grid();
-    }
-    
-    pos_x = event.clientX;
-    pos_y = event.clientY;
-}
-
-function plot_mouse_up () {
-    drag = false;
 }
 
 // change position of slider after input box has changed
@@ -228,6 +160,3 @@ function addParameterSlider(p) {
 
     sliders[p] = slider;
 }
-
-init();
-init_ui();
