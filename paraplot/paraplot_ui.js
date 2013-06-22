@@ -134,8 +134,8 @@ function addParameterSlider(p) {
     var list = document.getElementById("funclist");
 
     var new_func_div = document.createElement("div");
-    list.appendChild(new_func_div);
     new_func_div.setAttribute("class", "funcbox");
+    list.appendChild(new_func_div);
 
     var para_div = document.createElement("div");
     para_div.innerHTML = p + " = ";

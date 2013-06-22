@@ -1,19 +1,8 @@
 // basic function for plotting stuff
-function plot(points, path_id, style) {
-    for (var i = 0; i < temp.length; i++) {
-        graph.removeChild(temp[i]);
-    }
-    temp = new Array();
-
+function plot(object) {
     // check if points is valid
     if (points.length > 0) {
-        var path;
-        if (path_id === undefined) {
-            path = document.createElementNS('http://www.w3.org/2000/svg', "path");
-            graph.appendChild(path);
-        } else {
-            path = document.getElementById(path_id);
-        }
+        var path = document.getElementById(path_id);
         
         if (style.lines) {
             var start_y_pix = view.pix.h - (points[0].y - view.rect.y) * view.scale.y;
@@ -77,91 +66,82 @@ function plot(points, path_id, style) {
     }
 }
 
-function func_evaluate (func_num) {
-    var input = document.getElementById("input" + func_num);
+// sets path data to [0, 0] to hide it
+function deplot(object) {
+    object.path = document.getElementById(path_id);
+    object.path.setAttribute("d", "M 0,0");
+}
+
+function func_evaluate (func_id) {
+    var func = objects[func_id]; 
+    //var input = document.getElementById("input" + func_id);
     
-    if (input.value != '') {
+    if (func.input.value != '') {
         var f; // in case it is a function
-        var data = new Array(); // in case it is csv
+
         try {
-            f = Parser.parse(input.value);
+            f = Parser.parse(func.input.value);
         } catch (err) {
-            plot([0, 0], "function" + func_num);
+            deplot(func);
 
             // exit from function
             return 0;
         }
         
-        var type = "";
-        var para = new Array();
-        var para_def = true;
+        // Type of function. Can be:
+        //   'x' -> function f(x) of one real variable
+        //   'y' -> function f(y) of one real variable
+        //   'xy' -> function f(x, y) in two real variables
+        //   'n' -> function f(n) of one integer variable
+        func.type = "";
+        var new_parameters = new Array();
         for (var vi = 0; vi < f.variables().length; vi++) {
-            var v =  f.variables()[vi]
+            var v = f.variables()[vi];
 
-            if (v == "x") {
-                type += "x";
-            }
-            
-            if (v == "y") {
-                type += "y";
-            }
-            
-            if (v == "n") {
-                type += "n";
-            }
-            
-            if (v != "x" && v != "y" && v != "n" && forbidden_parameters.indexOf(v) == -1) {            
-                para.push(v);
-                
-                if (!(v in parameters)) {
-                    para_def = false;
-                } 
+            if (variables.indexOf(v) != -1) {
+                func.type += v;   
+            } else (forbidden_parameters.indexOf(v) == -1 && !(v in parameters)) {            
+                new_parameters.push(v);
             }
         }
         
         // add parameter sliders
-        var points = new Array();
-        if (!para_def) {
-            for (var i = 0; i < para.length; i++) {
-                if (!(para[i] in parameters)) {
-                    addParameterSlider(para[i]);
-                    parameters[para[i]] = 1;
-                }
-            }
+        for (var i = 0; i < new_parameters.length; i++) {
+            addParameterSlider(para[i]);
+            parameters[new_parameters[i]] = 1;
         }
 
-        var style = functions[func_num].style;
         // evaluate points
-        if (type == 'x') {
+        func.points = new Array();
+        if (func.type == 'x') {
             // continuous function
             for (var x = view.rect.x; x <= (view.rect.x + view.rect.w + step); x += step) {
                 parameters['x'] = x;
-                points.push({x: x, y: f.evaluate(parameters)});
+                func.points.push({x: x, y: f.evaluate(parameters)});
+
                 // set style, function should be plotted as lines
-                style.lines = true;
-                style.markers = false;
+                func.style.lines = true;
+                func.style.markers = false;
             }
-        } else if (type == 'n') {
+        } else if (func.type == 'n') {
             // discrete function
             for (var n = Math.floor(view.rect.x); n <= Math.ceil(view.rect.x + view.rect.w); n++) {
                 parameters['n'] = n;
-                points.push({x: n, y: f.evaluate(parameters)});
+                func.points.push({x: n, y: f.evaluate(parameters)});
+
                 // set style, function should be plotted as dots
-                style.lines = false;
-                style.markers = true;
+                func.style.lines = false;
+                func.style.markers = true;
             }
-        }
-        
-        // plot
-        if (func_num >= functions.length) {
-            functions.push({f: f, points: points, type: type, parameters: para, style: style});
         } else {
-            functions[func_num] = {f: f, points: points, type: type, parameters: para, style: style};
+            // not yet implemented type
+            deplot(func);
         }
         
-        plot(points, 'function' + func_num, style);
+        plot(func);
     } else { // input string was empty
-        plot([0, 0], "function" + func_num);
+        // hide path
+        deplot(func);
     }
 }
 
@@ -172,13 +152,13 @@ function func_evaluate (func_num) {
                 points[lid] = {x: data[lid][0], y: data[lid][1]};
             }
             
-            if (func_num >= functions.length) {
+            if (func_id >= functions.length) {
                 functions.push({points: points});
             } else {
-                functions[func_num] = {points: points};
+                functions[func_id] = {points: points};
             }
             
-            plot(points, 'function' + func_num);
+            plot(points, 'function' + func_id);
         }*/
 
 /*if (input.value.indexOf('\n') != -1) {

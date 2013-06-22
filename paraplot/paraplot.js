@@ -9,23 +9,31 @@ var view = {
     pix: {w: window.innerWidth - sidebar_width, h:window.innerHeight}
 };
 
+// Parameters used to plot functions
 var step;
 var step_pix = 5;
 
-var functions = new Array();
-var function_count = 0;
+// Most important objects of the application
+// objects tells how many thinks are there on the screen
+var objects = {'count': 0};
+// parameters keeps track of the user define parameters
 var parameters = {'pi': 3.141592, 'e': 2.718281};
+// these are parameters and functions the user cannot overwrite
 var forbidden_parameters = ['random', 'fac', 'min', 'max', 'pyt', 'pow', 'atan2'];
+// variables the program understands
+var known_variables = ['x', 'y', 'n'];
 
+// svg, graph, function list and axis objects
 var svg;
 var graph;
 var xaxis;
 var yaxis;
+var list;
 
+// tick lines
 var grid_lines = {x: new Array(), y: new Array(), x_labels: new Array(), y_labels: new Array()};
+// tells every about how many pixels the program should draw a major tick line
 var pix_major_tick = 120;
-
-var temp = new Array();
 
 // Saves some dom elements and sets the view and the grid.
 function init () {
@@ -33,6 +41,7 @@ function init () {
     graph = document.getElementById("graph");
     xaxis = document.getElementById("xaxis");
     yaxis = document.getElementById("yaxis");
+    list = document.getElementById("funclist");
     
     center_view();
     
@@ -60,23 +69,21 @@ function center_view(x, y) {
 function func_add () {
     var color = generate_color();
     var css_color = "rgb(" + Math.floor(color[0]*255) + ", " + Math.floor(color[1]*255) + ", " + Math.floor(color[2]*255) +  ")";
-    
-    var list = document.getElementById("funclist");
 
     var new_func_div = document.createElement("div");
-    list.appendChild(new_func_div);
     new_func_div.setAttribute("class", "funcbox");
+    list.appendChild(new_func_div);
 
     var input = document.createElement("input");
     input.setAttribute("type", "text");
-    input.setAttribute("id", "input" + function_count);
+    input.setAttribute("id", "input" + objects.count);
     input.setAttribute("class", "func");
     //input.addEventListener("input", function (e) {func_evaluate(e.target.id.replace("input", ""))});
     input.addEventListener("keydown", input_key_down);
     new_func_div.appendChild(input);
     input.focus();
     // which input is selected
-    selected_input = function_count;
+    selected_input = objects.count;
 
     // add command table (with the color and the "plot" button)
     var tab = document.createElement("table");
@@ -97,25 +104,25 @@ function func_add () {
     td_color.appendChild(color_div);
 
     var button = document.createElement("button");
-    button.setAttribute("onclick", "func_evaluate(" + function_count + ")");
+    button.setAttribute("onclick", "func_evaluate(" + objects.count + ")");
     button.innerHTML = "Plot";
     td_button.appendChild(button);
 
     new_func_div.appendChild(tab);
 
     var path = document.createElementNS('http://www.w3.org/2000/svg', "path");
-    graph.appendChild(path);
-    path.setAttribute("id", "function" + function_count);
+    path.setAttribute("id", "function" + objects.count);
     path.style.stroke = css_color;
+    graph.appendChild(path);
 
-    functions.push({id: function_count, style: {color: css_color}})
-    function_count++;
+    objects[objects.count] = {path: path, input: input, style: {color: css_color}};
+    objects.count++;
 }
 
 function redraw() {
     step = step_pix / view.scale.x;
     
-    for (var i = 0; i < functions.length; i++) {
+    for (var i = 0; i < objects.count; i++) {
         func_evaluate(i);
     }
 }

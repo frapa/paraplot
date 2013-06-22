@@ -1,13 +1,13 @@
 function input_key_down(event) {
     if (event.keyCode == 13) { // enter
-        func_evaluate(functions[selected_input].id);
+        func_evaluate(objects[selected_input].id);
     } else if (event.keyCode == 40) {  // down arrow
         // if we are at the top of the list of function
         // add a new function, otherwise move
         // the cursor to the next function input box
-        if (selected_input < functions.length - 1) {
+        if (selected_input < objects.count) {
             selected_input++;
-            document.getElementById("input" + functions[selected_input].id).focus();
+            document.getElementById("input" + objects[selected_input].id).focus();
         } else {
             func_add();
         }
@@ -16,7 +16,7 @@ function input_key_down(event) {
         // move the cursor to the previous function input box
         if (selected_input > 0) {
             selected_input--;
-            document.getElementById("input" + functions[selected_input].id).focus();
+            document.getElementById("input" + objects[selected_input].id).focus();
         } 
     }
 }
