@@ -1,13 +1,13 @@
 function input_key_down(event) {
     if (event.keyCode == 13) { // enter
-        func_evaluate(objects[selected_input].id);
+        func_evaluate(selected_input);
     } else if (event.keyCode == 40) {  // down arrow
         // if we are at the top of the list of function
         // add a new function, otherwise move
         // the cursor to the next function input box
-        if (selected_input < objects.count) {
+        if (selected_input < objects.count - 1) {
             selected_input++;
-            document.getElementById("input" + objects[selected_input].id).focus();
+            objects[selected_input].input.focus();
         } else {
             func_add();
         }
@@ -16,7 +16,7 @@ function input_key_down(event) {
         // move the cursor to the previous function input box
         if (selected_input > 0) {
             selected_input--;
-            document.getElementById("input" + objects[selected_input].id).focus();
+            objects[selected_input].input.focus();
         } 
     }
 }
@@ -72,6 +72,7 @@ function plot_mouse_down (event) {
         event.preventDefault();
 
         drag = true;
+        remove_numbers();
     }
 }
 
@@ -84,7 +85,7 @@ function plot_mouse_move (event) {
         
         redraw();
         box_write();
-        draw_grid();
+        simplified_draw_grid();
     }
     
     pos_x = event.clientX;
@@ -93,6 +94,7 @@ function plot_mouse_move (event) {
 
 function plot_mouse_up () {
     drag = false;
+    draw_grid();
 }
 
 

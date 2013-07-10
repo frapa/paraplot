@@ -115,7 +115,7 @@ function func_add () {
     path.style.stroke = css_color;
     graph.appendChild(path);
 
-    objects[objects.count] = {path: path, input: input, style: {color: css_color}};
+    objects[objects.count] = {circles: [], path: path, input: input, style: {color: css_color}};
     objects.count++;
 }
 
@@ -123,6 +123,13 @@ function redraw() {
     step = step_pix / view.scale.x;
     
     for (var i = 0; i < objects.count; i++) {
-        func_evaluate(i);
+        var func = objects[i];
+
+        if (compute(func)) {
+            plot(func);
+        } else {
+            deplot(func);
+        }
     }
 }
+

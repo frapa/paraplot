@@ -13,6 +13,8 @@ var event;
 
 // state vars
 var selected_input;
+// parameters_inputs
+var para_input = {};
 
 function menu_select (id) {
     for (c in contents) {
@@ -124,8 +126,7 @@ function editParameter(para_id, event) {
 function changeParameter(para_id, value) {
     parameters[para_id] = value;
 
-    var val_input = document.getElementById("para_input_" + para_id);
-    val_input.value = value.toPrecision(3);
+    para_input[para_id].value = value.toPrecision(3);
     
     redraw();
 }
@@ -146,6 +147,7 @@ function addParameterSlider(p) {
     val.id = "para_input_" + p;
     val.addEventListener("input", function (e) {editParameter(p, e)});
     para_div.appendChild(val);
+    para_input[p] = val;
     
     new_func_div.appendChild(para_div);
 

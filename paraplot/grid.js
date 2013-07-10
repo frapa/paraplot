@@ -41,6 +41,77 @@ function get_ticks(a, b, mt) {
     return ticks;
 }
 
+function remove_numbers() {
+    for (var i = 0; i < grid_lines.x.length; i++) {
+        grid_lines.x_labels[i].textContent = "";
+    }
+
+    for (var i = 0; i < grid_lines.y.length; i++) {
+        grid_lines.y_labels[i].textContent = "";
+    }
+}
+
+function simplified_draw_grid() {
+    // 0.5 added to make line be 1 pixel in stroke, otherwise antialias is applied
+    xaxis.setAttribute("d", "M 0 " + (Math.floor(view.pix.h + view.rect.y * view.scale.y) + 0.5) +
+        " L " + view.pix.w + " " + (Math.floor(view.pix.h + view.rect.y * view.scale.y) + 0.5));
+    yaxis.setAttribute("d", "M " + (Math.floor(-view.rect.x * view.scale.x) + 0.5) +
+        " 0 L " + (Math.floor(-view.rect.x * view.scale.x) + 0.5) + " " + view.pix.h);
+    
+    var x_ticks = get_ticks(view.rect.x, view.rect.x + view.rect.w, view.pix.w / pix_major_tick);
+    var y_ticks = get_ticks(view.rect.y, view.rect.y + view.rect.h, view.pix.h / pix_major_tick);
+    
+    for (var i = 0; i < grid_lines.x.length; i++) {
+        grid_lines.x[i].setAttribute("d", "M 0,0");
+    }
+    
+    for (var i = 0; i < x_ticks.major.length; i++) {
+        var t = x_ticks.major[i];
+        
+        if (i == grid_lines.x.length) {
+            grid_lines.x[i] = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            grid_lines.x[i].setAttribute("class", "major_tick");
+            graph.appendChild(grid_lines.x[i]);
+            
+            grid_lines.x_labels[i] = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            grid_lines.x_labels[i].setAttribute("class", "major_tick_label");
+            graph.appendChild(grid_lines.x_labels[i]);
+        }
+        
+        if (t != 0) {
+            // 0.5 added to make line be 1 pixel thick, otherwise antialias is applied
+            var x = Math.floor((t - view.rect.x) * view.scale.x) + 0.5;
+            
+            grid_lines.x[i].setAttribute("d", "M " + x + " 0 L " + x + " " + view.pix.h);
+        }
+    }
+    
+    for (var i = 0; i < grid_lines.y.length; i++) {
+        grid_lines.y[i].setAttribute("d", "M 0,0");
+    }
+    
+    for (var i = 0; i < y_ticks.major.length; i++) {
+        var t = y_ticks.major[i];
+        if (i == grid_lines.y.length) {
+            grid_lines.y[i] = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            grid_lines.y[i].setAttribute("class", "major_tick");
+            graph.appendChild(grid_lines.y[i]);
+            
+            grid_lines.y_labels[i] = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            grid_lines.y_labels[i].setAttribute("class", "major_tick_label");
+            graph.appendChild(grid_lines.y_labels[i]);
+        }
+        
+        if (t != 0) {
+            // 0.5 added to make line be 1 pixel thick, otherwise antialias is applied
+            var y = Math.floor(view.pix.h - (t - view.rect.y) * view.scale.x) + 0.5;
+            
+            grid_lines.y[i].setAttribute("d", "M 0 " + y + " L " + view.pix.w + " " + y);
+        }
+    }
+
+}
+
 function draw_grid () {
     // 0.5 added to make line be 1 pixel in stroke, otherwise antialias is applied
     xaxis.setAttribute("d", "M 0 " + (Math.floor(view.pix.h + view.rect.y * view.scale.y) + 0.5) +
